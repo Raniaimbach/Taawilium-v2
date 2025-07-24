@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 
@@ -78,7 +80,7 @@ export default function DreamsPage() {
   const fetchDreams = async () => {
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    }: { data: { user: { id: string } | null } } = await supabase.auth.getUser();
 
     if (!user) {
       setDreams([]);
