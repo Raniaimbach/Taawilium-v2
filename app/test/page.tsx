@@ -2,17 +2,31 @@
 
 export const dynamic = 'force-dynamic';
 
-import React from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 
 export default function TestPage() {
+  const [checking, setChecking] = useState(true);
   const [dream, setDream] = useState('');
   const [interpretation, setInterpretation] = useState('');
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [mode, setMode] = useState<'both' | 'spirit' | 'sci'>('both');
   const [language, setLanguage] = useState<'ar' | 'en' | 'de'>('ar');
+  const router = useRouter();
+
+  useEffect(() => {
+    const secureAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+      } else {
+        setChecking(false);
+      }
+    };
+    secureAccess();
+  }, [router]);
 
   useEffect(() => {
     const storedLang = localStorage.getItem('language');
@@ -83,7 +97,7 @@ export default function TestPage() {
 
   const t = labels[language];
   const dir = language === 'ar' ? 'rtl' : 'ltr';
-  
+
   const handleInterpret = async () => {
     setLoading(true);
     setInterpretation('');
@@ -145,6 +159,8 @@ export default function TestPage() {
     const { error } = await supabase.auth.signOut();
     if (!error) window.location.href = '/login';
   };
+
+  if (checking) return null;
 
   return (
     <div

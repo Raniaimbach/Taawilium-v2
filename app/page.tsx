@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createBrowserClient } from '@supabase/ssr';
+import { supabase } from '@/lib/supabase/client';
 
 export default function LandingPage() {
-  const [language, setLanguage] = useState<'ar' | 'en' | 'de'>('ar');
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [language, setLanguage] = useState<'ar' | 'en' | 'de'>('ar');
   const router = useRouter();
 
   useEffect(() => {
@@ -14,21 +14,21 @@ export default function LandingPage() {
     if (saved === 'en' || saved === 'de' || saved === 'ar') {
       setLanguage(saved);
     }
+  }, []);
 
+  useEffect(() => {
     const checkAuth = async () => {
-      const supabase = createBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        router.push('/test'); // المستخدم مسجل → تحويل فوري
+        router.push('/test');
       } else {
-        setCheckingAuth(false); // عرض الصفحة العادية
+        setCheckingAuth(false);
       }
     };
-
     checkAuth();
   }, [router]);
 
-  if (checkingAuth) return null; // انتظر التحقق من الدخول
+  if (checkingAuth) return null;
 
   const labels = {
     ar: {
@@ -64,7 +64,6 @@ export default function LandingPage() {
       style={{ backgroundImage: "url('/images/moon-bg.jpg')" }}
       dir={dir}
     >
-      {/* Language Switch */}
       <div className="absolute top-6 right-6">
         <select
           value={language}
@@ -77,24 +76,15 @@ export default function LandingPage() {
         </select>
       </div>
 
-      {/* Quote */}
       <p className="text-xl md:text-2xl text-center font-light mb-4 text-white drop-shadow">
         {labels.quote}
       </p>
 
-      {/* Title */}
       <h1 className="text-4xl md:text-5xl font-bold text-purple-300 drop-shadow mb-8 text-center">
         {labels.title}
       </h1>
 
-      {/* Buttons */}
       <div className="flex flex-col md:flex-row gap-4">
-        <button
-          onClick={() => router.push('/test')}
-          className="bg-purple-800 hover:bg-purple-900 text-white font-semibold py-2 px-6 rounded-md shadow-md"
-        >
-          {labels.start}
-        </button>
         <button
           onClick={() => router.push('/login')}
           className="bg-white/10 hover:bg-white/20 text-white font-medium py-2 px-6 rounded-md shadow-md border border-purple-500"
