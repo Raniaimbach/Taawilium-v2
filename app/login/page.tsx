@@ -10,6 +10,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [language, setLanguage] = useState<'ar' | 'en' | 'de'>('ar');
   const router = useRouter();
 
@@ -20,33 +22,45 @@ export default function LoginPage() {
 
   const labels = {
     ar: {
+      welcome: '✨ مرحباً بكم في تاويليوم ✨',
       title: 'تاويليوم – همس الأحلام',
-      login: '✨ تسجيل الدخول ✨',
+      login: 'تسجيل الدخول',
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
-      error: 'فشل تسجيل الدخول',
+      error: 'فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.',
+      unconfirmed: 'يرجى تأكيد بريدك الإلكتروني أولاً.',
       button: 'تسجيل الدخول',
       switch: 'لا تملك حساباً؟ أنشئ حسابًا',
+      remember: 'تذكرني',
+      google: 'تسجيل الدخول بجوجل',
       lang: '🇬🇧 English',
     },
     en: {
+      welcome: '✨ Welcome to Taawilium ✨',
       title: 'Taawilium – The Dream Whisperer',
-      login: '✨ Log In ✨',
+      login: 'Log In',
       email: 'Email',
       password: 'Password',
-      error: 'Login failed',
+      error: 'Login failed. Please check your credentials.',
+      unconfirmed: 'Please confirm your email before logging in.',
       button: 'Log In',
       switch: "Don't have an account? Sign up",
+      remember: 'Remember me',
+      google: 'Log in with Google',
       lang: '🇩🇪 Deutsch',
     },
     de: {
+      welcome: '✨ Willkommen bei Taawilium ✨',
       title: 'Taawilium – Der Traumflüsterer',
-      login: '✨ Anmeldung ✨',
+      login: 'Anmelden',
       email: 'E-Mail',
       password: 'Passwort',
-      error: 'Anmeldung fehlgeschlagen',
+      error: 'Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Daten.',
+      unconfirmed: 'Bitte bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden.',
       button: 'Anmelden',
-      switch: 'Noch kein Konto? Registrieren',
+      switch: 'Noch kein Konto? Jetzt registrieren',
+      remember: 'Angemeldet bleiben',
+      google: 'Mit Google anmelden',
       lang: '🇸🇦 عربي',
     },
   }[language];
@@ -55,12 +69,20 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
       setError(labels.error);
+    } else if (!data.session?.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      setError(labels.unconfirmed);
     } else {
       router.push('/test');
     }
+
+    setLoading(false);
   };
 
   return (
@@ -81,8 +103,11 @@ export default function LoginPage() {
         </button>
       </div>
 
+      {/* رسالة ترحيب */}
+      <p className="text-center text-lg md:text-xl text-purple-200 mb-2 drop-shadow">{labels.welcome}</p>
+
       {/* العنوان */}
-      <div className="text-center mb-10 mt-8">
+      <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-purple-400">{labels.title}</h1>
       </div>
 
@@ -105,13 +130,34 @@ export default function LoginPage() {
           className="w-full p-3 mb-4 rounded-md bg-gray-800/60 text-white placeholder-gray-400 focus:outline-none"
         />
 
+        {/* تذكرني */}
+        <label className="flex items-center mb-4 text-sm text-white">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={() => setRemember(!remember)}
+            className="mr-2"
+          />
+          {labels.remember}
+        </label>
+
+        {/* خطأ */}
         {error && <p className="text-red-400 text-sm mb-4 text-center">{error}</p>}
 
         <button
           onClick={handleLogin}
-          className="w-full bg-purple-800 hover:bg-purple-900 text-white font-semibold py-2 rounded-md shadow-md"
+          disabled={loading}
+          className="w-full bg-purple-800 hover:bg-purple-900 text-white font-semibold py-2 rounded-md shadow-md disabled:opacity-50"
         >
-          {labels.button}
+          {loading ? '...' : labels.button}
+        </button>
+
+        {/* تسجيل بجوجل لاحقًا */}
+        <button
+          onClick={() => alert('🛠️ سيتم تفعيله لاحقًا')}
+          className="w-full mt-3 bg-white/10 hover:bg-white/20 text-white py-2 rounded-md border border-purple-300"
+        >
+          {labels.google}
         </button>
 
         <p className="text-center text-sm mt-4 text-gray-300">
