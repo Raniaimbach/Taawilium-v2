@@ -35,6 +35,8 @@ export default function TestPage() {
     }
   }, []);
 
+  if (checking) return null;
+
   const labels = {
     ar: {
       intro: '✨لا تنسَ حلمًا زارك مرة… فهو لم يأتِ عبثًا✨',
@@ -49,7 +51,6 @@ export default function TestPage() {
       sci: 'علمي فقط 🧪',
       both: 'شامل 💫',
       selectMode: 'اختر نوع التفسير',
-      selectLang: 'اختر اللغة',
       save: '💾 حفظ الحلم',
       saved: '✅ تم حفظ الحلم بنجاح.',
       signOut: '🚪 تسجيل الخروج',
@@ -68,7 +69,6 @@ export default function TestPage() {
       sci: 'Scientific Only 🧪',
       both: 'Combined 💫',
       selectMode: 'Choose interpretation type',
-      selectLang: 'Choose language',
       save: '💾 Save Dream',
       saved: '✅ Dream saved successfully.',
       signOut: '🚪 Sign Out',
@@ -87,15 +87,13 @@ export default function TestPage() {
       sci: 'Nur Wissenschaftlich 🧪',
       both: 'Kombiniert 💫',
       selectMode: 'Wähle Deutungsart',
-      selectLang: 'Sprache wählen',
       save: '💾 Traum speichern',
       saved: '✅ Traum erfolgreich gespeichert.',
       signOut: '🚪 Abmelden',
       view: '🕯️ Gespeicherte Träume anzeigen',
     },
-  };
+  }[language];
 
-  const t = labels[language];
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
   const handleInterpret = async () => {
@@ -119,12 +117,12 @@ export default function TestPage() {
         }),
       });
       const data = await res.json();
-      const result = data.result || t.noResult;
+      const result = data.result || labels.noResult;
       setInterpretation(result);
       const audio = new Audio('/sounds/whisper.mp3');
       audio.play();
     } catch {
-      setInterpretation(t.error);
+      setInterpretation(labels.error);
     } finally {
       setLoading(false);
     }
@@ -160,8 +158,6 @@ export default function TestPage() {
     if (!error) window.location.href = '/login';
   };
 
-  if (checking) return null;
-
   return (
     <div
       className={`min-h-screen bg-cover bg-center px-6 py-10 text-white relative`}
@@ -186,14 +182,14 @@ export default function TestPage() {
           onClick={handleSignOut}
           className="bg-purple-800 hover:bg-purple-900 text-white font-semibold py-1 px-4 rounded-md shadow"
         >
-          {t.signOut}
+          {labels.signOut}
         </button>
       </div>
 
       {/* Title + Intro */}
       <div className="text-center mt-24">
-        <p className="text-2xl md:text-3xl font-semibold text-white drop-shadow">{t.intro}</p>
-        <h1 className="text-4xl md:text-5xl font-bold mt-2 text-purple-800 drop-shadow">{t.title}</h1>
+        <p className="text-2xl md:text-3xl font-semibold text-white drop-shadow">{labels.intro}</p>
+        <h1 className="text-4xl md:text-5xl font-bold mt-2 text-purple-800 drop-shadow">{labels.title}</h1>
       </div>
 
       {/* Input */}
@@ -201,7 +197,7 @@ export default function TestPage() {
         <textarea
           value={dream}
           onChange={(e) => setDream(e.target.value)}
-          placeholder={t.placeholder}
+          placeholder={labels.placeholder}
           className="w-full h-36 p-4 bg-white/5 backdrop-blur-md text-white placeholder-gray-300 rounded-md border border-white/20 shadow-md"
           dir={dir}
         />
@@ -215,10 +211,10 @@ export default function TestPage() {
             onChange={(e) => setMode(e.target.value as 'both' | 'spirit' | 'sci')}
             className="bg-purple-800 text-white text-sm rounded-md px-3 py-2"
           >
-            <option value="both">{t.selectMode}</option>
-            <option value="both">{t.both}</option>
-            <option value="spirit">{t.spirit}</option>
-            <option value="sci">{t.sci}</option>
+            <option value="both">{labels.selectMode}</option>
+            <option value="both">{labels.both}</option>
+            <option value="spirit">{labels.spirit}</option>
+            <option value="sci">{labels.sci}</option>
           </select>
 
           <button
@@ -226,7 +222,7 @@ export default function TestPage() {
             disabled={loading || !dream.trim()}
             className="bg-purple-800 hover:bg-purple-900 text-white font-semibold py-2 px-4 rounded shadow disabled:opacity-50"
           >
-            {loading ? t.interpreting : t.interpret}
+            {loading ? labels.interpreting : labels.interpret}
           </button>
         </div>
 
@@ -234,7 +230,7 @@ export default function TestPage() {
           onClick={handleDelete}
           className="bg-purple-800 hover:bg-purple-900 text-white text-sm py-2 px-4 rounded-md"
         >
-          {t.deleting}
+          {labels.deleting}
         </button>
       </div>
 
@@ -247,10 +243,10 @@ export default function TestPage() {
               onClick={handleSave}
               className="mt-4 bg-purple-800 hover:bg-purple-900 text-white py-2 px-4 rounded shadow-md"
             >
-              {t.save}
+              {labels.save}
             </button>
           )}
-          {saved && <p className="mt-4 text-green-400">{t.saved}</p>}
+          {saved && <p className="mt-4 text-green-400">{labels.saved}</p>}
         </div>
       )}
 
@@ -260,7 +256,7 @@ export default function TestPage() {
           href="/dream"
           className="inline-block bg-purple-800 hover:bg-purple-900 text-white font-semibold py-2 px-6 rounded-md"
         >
-          {t.view}
+          {labels.view}
         </a>
       </div>
     </div>
