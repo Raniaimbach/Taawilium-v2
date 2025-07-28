@@ -33,8 +33,16 @@ export async function POST(req: NextRequest) {
     const result = completion.choices[0].message?.content || 'No interpretation found.';
 
     return NextResponse.json({ result, promptId });
-  } catch (error: any) {
-    console.error('❌ Error in interpretation:', error.message);
-    return NextResponse.json({ result: '❌ حدث خطأ أثناء التفسير.', promptId: 'unknown' }, { status: 500 });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('❌ Error in interpretation:', error.message);
+    } else {
+      console.error('❌ Unknown error in interpretation.');
+    }
+
+    return NextResponse.json(
+      { result: '❌ حدث خطأ أثناء التفسير.', promptId: 'unknown' },
+      { status: 500 }
+    );
   }
 }
