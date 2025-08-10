@@ -27,6 +27,7 @@ export default function LoginPage() {
       login: 'تسجيل الدخول',
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
+      forgot: 'نسيت كلمة المرور؟',
       error: 'فشل تسجيل الدخول. تأكد من البريد وكلمة المرور.',
       unconfirmed: 'يرجى تأكيد بريدك الإلكتروني أولاً.',
       button: 'تسجيل الدخول',
@@ -41,6 +42,7 @@ export default function LoginPage() {
       login: 'Log In',
       email: 'Email',
       password: 'Password',
+      forgot: 'Forgot password?',
       error: 'Login failed. Please check your credentials.',
       unconfirmed: 'Please confirm your email before logging in.',
       button: 'Log In',
@@ -55,6 +57,7 @@ export default function LoginPage() {
       login: 'Anmelden',
       email: 'E-Mail',
       password: 'Passwort',
+      forgot: 'Passwort vergessen?',
       error: 'Anmeldung fehlgeschlagen. Bitte prüfen Sie Ihre Daten.',
       unconfirmed: 'Bitte bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden.',
       button: 'Anmelden',
@@ -122,13 +125,24 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-3 mb-4 rounded-md bg-gray-800/60 text-white placeholder-gray-400 focus:outline-none"
         />
+
         <input
           type="password"
           placeholder={labels.password}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 mb-4 rounded-md bg-gray-800/60 text-white placeholder-gray-400 focus:outline-none"
+          className="w-full p-3 mb-1 rounded-md bg-gray-800/60 text-white placeholder-gray-400 focus:outline-none"
         />
+
+        {/* رابط نسيت كلمة المرور */}
+        <div className="w-full text-right mb-4">
+          <a
+            href="/forgot-password"
+            className="text-sm text-purple-300 hover:underline cursor-pointer"
+          >
+            {labels.forgot}
+          </a>
+        </div>
 
         {/* تذكرني */}
         <label className="flex items-center mb-4 text-sm text-white">

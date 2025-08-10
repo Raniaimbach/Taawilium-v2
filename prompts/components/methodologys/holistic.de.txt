@@ -1,0 +1,1 @@
+echo "Diese ganzheitliche Methodologie deutet Träume durch die Verbindung psychologischer, symbolischer, kultureller und spiritueller Ebenen. Ein Traum wird nicht als isoliertes Symbol betrachtet, sondern als ein integriertes Ganzes mit verborgenen Botschaften über die Psyche, das Umfeld, die Ängste und die Hoffnungen des Träumenden." > holistic.de.txt

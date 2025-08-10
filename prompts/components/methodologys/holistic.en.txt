@@ -1,0 +1,1 @@
+echo "This holistic methodology interprets dreams by blending psychological, symbolic, cultural, and spiritual dimensions. A dream is not seen as an isolated symbol, but as an integrated whole carrying subtle messages about the dreamer's psyche, environment, fears, and aspirations." > holistic.en.txt
