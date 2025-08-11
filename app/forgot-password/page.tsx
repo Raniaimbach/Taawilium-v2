@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
       } else {
         setMessage(`❌ خطأ: ${data.error || t.errorMessage}`);
       }
-    } catch (error) {
+    } catch {
       setMessage(`❌ ${t.errorMessage}`);
     }
 
