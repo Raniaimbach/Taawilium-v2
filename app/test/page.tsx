@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 
+type Language = 'ar' | 'en' | 'de';
+type Mode = 'holistic' | 'spiritual' | 'scientific';
+
+const isMode = (v: string): v is Mode =>
+  v === 'holistic' || v === 'spiritual' || v === 'scientific';
+
+const isLang = (v: string): v is Language =>
+  v === 'ar' || v === 'en' || v === 'de';
+
 export default function TestPage() {
   const router = useRouter();
 
@@ -12,8 +21,8 @@ export default function TestPage() {
   const [interpretation, setInterpretation] = useState('');
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [language, setLanguage] = useState<'ar' | 'en' | 'de'>('ar');
-  const [mode, setMode] = useState<'holistic' | 'spiritual' | 'scientific'>('holistic');
+  const [language, setLanguage] = useState<Language>('ar');
+  const [mode, setMode] = useState<Mode>('holistic');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -24,7 +33,7 @@ export default function TestPage() {
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language');
-    if (savedLang === 'ar' || savedLang === 'en' || savedLang === 'de') setLanguage(savedLang);
+    if (savedLang && isLang(savedLang)) setLanguage(savedLang);
   }, []);
 
   if (checking) return null;
@@ -88,8 +97,8 @@ export default function TestPage() {
 
   const dir = language === 'ar' ? 'rtl' : 'ltr';
 
-  const getPromptPath = (mode: string, lang: string) => {
-    switch (mode) {
+  const getPromptPath = (m: Mode, lang: Language) => {
+    switch (m) {
       case 'scientific': return `prompts/components/methodologys/dcas.${lang}.txt`;
       case 'spiritual': return `prompts/components/methodologys/spiritual_deduction.${lang}.txt`;
       case 'holistic':
@@ -128,7 +137,7 @@ export default function TestPage() {
       setInterpretation(data.result || labels.noResult);
 
       const audio = new Audio('/sounds/whisper.mp3');
-      audio.play();
+      void audio.play();
     } catch {
       setInterpretation(labels.error);
     } finally {
@@ -182,8 +191,11 @@ export default function TestPage() {
         <select
           value={language}
           onChange={e => {
-            setLanguage(e.target.value as 'ar' | 'en' | 'de');
-            localStorage.setItem('language', e.target.value);
+            const val = e.target.value;
+            if (isLang(val)) {
+              setLanguage(val);
+              localStorage.setItem('language', val);
+            }
           }}
           className="bg-white/20 text-white rounded px-3 py-1 focus:outline-none cursor-pointer"
         >
@@ -220,7 +232,10 @@ export default function TestPage() {
           <label className="font-semibold min-w-max">{labels.selectMode}:</label>
           <select
             value={mode}
-            onChange={e => setMode(e.target.value as any)}
+            onChange={e => {
+              const val = e.target.value;
+              if (isMode(val)) setMode(val);
+            }}
             className="bg-black/40 text-white rounded px-3 py-1 cursor-pointer backdrop-blur-md border border-purple-700 focus:outline-none"
           >
             <option value="holistic">{labels.holistic}</option>
