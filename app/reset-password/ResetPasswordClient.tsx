@@ -15,10 +15,13 @@ export default function ResetPasswordClient() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
+  // نقرأ أي توكنات موجودة في الرابط (query أو hash)
   const tokens = useMemo(() => {
     const queryAccess = search.get('access_token');
     const queryRefresh = search.get('refresh_token');
 
+    // كثيراً ما تصل في الـ hash:
+    // #access_token=...&refresh_token=...&type=recovery
     const hash = typeof window !== 'undefined' ? window.location.hash : '';
     const hashParams = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash);
     const hashAccess = hashParams.get('access_token');
@@ -31,15 +34,14 @@ export default function ResetPasswordClient() {
     };
   }, [search]);
 
+  // نثبت الجلسة من التوكنات حتى نقدر نستدعي updateUser
   useEffect(() => {
     (async () => {
       try {
         if (!tokens.access_token || !tokens.refresh_token) {
+          // قد تكون الجلسة موجودة مسبقًا
           const { data } = await supabase.auth.getSession();
-          if (data.session) {
-            setReady(true);
-            return;
-          }
+          if (data.session) { setReady(true); return; }
           setError('الرابط غير صالح أو مفقود. افتحي رابط إعادة التعيين من جديد.');
           return;
         }
@@ -48,10 +50,7 @@ export default function ResetPasswordClient() {
           access_token: tokens.access_token,
           refresh_token: tokens.refresh_token,
         });
-        if (setErr) {
-          setError('تعذر تفعيل الجلسة من الرابط. افتحي رابط إعادة التعيين من جديد.');
-          return;
-        }
+        if (setErr) { setError('تعذر تفعيل الجلسة من الرابط. افتحي رابط إعادة التعيين من جديد.'); return; }
         setReady(true);
       } catch {
         setError('حدث خطأ أثناء تجهيز الصفحة.');
@@ -63,23 +62,16 @@ export default function ResetPasswordClient() {
   const handleSubmit = async () => {
     setError(null);
 
-    if (password.length < 8) {
-      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل.');
-      return;
-    }
-    if (password !== password2) {
-      setError('كلمتا المرور غير متطابقتين.');
-      return;
-    }
+    if (password.length < 8) { setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل.'); return; }
+    if (password !== password2) { setError('كلمتا المرور غير متطابقتين.'); return; }
 
     setLoading(true);
     try {
       const { error: updErr } = await supabase.auth.updateUser({ password });
-      if (updErr) {
-        setError(updErr.message || 'تعذر تحديث كلمة المرور.');
-        return;
-      }
+      if (updErr) { setError(updErr.message || 'تعذر تحديث كلمة المرور.'); return; }
+
       setDone(true);
+      // تنظيف الـ hash من شريط العنوان (اختياري)
       if (typeof window !== 'undefined' && window.history.replaceState) {
         const url = new URL(window.location.href);
         url.hash = '';
@@ -107,9 +99,7 @@ export default function ResetPasswordClient() {
         )}
 
         {error && (
-          <div className="mb-4 rounded-md border border-red-400 bg-red-900/30 px-3 py-2 text-sm">
-            {error}
-          </div>
+          <div className="mb-4 rounded-md border border-red-400 bg-red-900/30 px-3 py-2 text-sm">{error}</div>
         )}
 
         {ready && !done && (
